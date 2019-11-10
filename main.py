@@ -107,7 +107,7 @@ for i in range(len(lines)):
                 print("succs",succs)
                 if j - 1 >= 0 and curline[j - 1] in preds:
                     score += 1
-                if j + 1 < len(lines) and curline[j + 1] in succs:
+                if j + 1 < len(curline) and curline[j + 1] in succs:
                     score += 1
                 if score > 0:
                     newid = existing[0]
@@ -136,7 +136,6 @@ def navigate(curnode = -1, result=[]): #simple limited DFS
     if curnode != -1 and curnode != 9999:
         result.append(curnode)
     if len(list(filter(lambda x: wordgraph.nodes[x].get('attribute') == 'v', result))) >= 1 and curnode == 9999 and len(result) >= 6:
-        print("result before return", result)
         return result
     for i in sorted(wordgraph.successors(curnode), key=lambda succ:wordgraph[curnode][succ].get('weight'), reverse=True):
         if i not in result:
