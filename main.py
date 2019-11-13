@@ -4,13 +4,15 @@ import math
 import string
 import networkx as nx
 from nltk.corpus import wordnet as wn
+from nltk.corpus import stopwords
 #process given test data and stopwords
-testdata = open("bolton.txt")
-stopwords = open("stopwords.txt")
-stops = [l.strip() for l in stopwords.readlines()]
+testdata = open("catonamat.txt")
+#stopwords = open("stopwords.txt")
+#stops = [l.strip() for l in stopwords.readlines()]
+stops = set(stopwords.words('english'))
 lines = [l.strip().strip(string.punctuation).lower().split() for l in testdata.readlines()]
 testdata.close()
-stopwords.close()
+#stopwords.close()
 
 wordgraph = nx.DiGraph() #initialize directed graph for use, as well as start and end nodes
 wordgraph.add_node(-1, attribute="start")
@@ -69,7 +71,7 @@ for i in range(len(lines)):
                     print(succs)
                     if j - 1 >= 0 and curline[j - 1] in preds:
                         score += 1
-                    if j + 1 < len(lines) and curline[j + 1] in succs:
+                    if j + 1 < len(curline) and curline[j + 1] in succs:
                         score += 1
                     if score >= overlaps[1]:
                         overlaps = [node, score]
@@ -93,7 +95,7 @@ for i in range(len(lines)):
                     print("succs",succs)
                     if j - 1 >= 0 and curline[j - 1] in preds:
                         score += 1
-                    if j + 1 < len(lines) and curline[j + 1] in succs:
+                    if j + 1 < len(curline) and curline[j + 1] in succs:
                         score += 1
                     if score >= overlaps[1]:
                         overlaps = [node, score]
@@ -135,7 +137,7 @@ def navigate(curnode = -1, result=[]): #simple limited DFS
     print("curword", wordgraph.nodes[curnode].get('name'))
     if curnode != -1 and curnode != 9999:
         result.append(curnode)
-    if len(list(filter(lambda x: wordgraph.nodes[x].get('attribute') == 'v', result))) >= 1 and curnode == 9999 and len(result) >= 6:
+    if len(list(filter(lambda x: wordgraph.nodes[x].get('attribute') == 'v', result))) >= 1 and curnode == 9999 and len(result) >= 3:
         return result
     for i in sorted(wordgraph.successors(curnode), key=lambda succ:wordgraph[curnode][succ].get('weight'), reverse=True):
         if i not in result:
