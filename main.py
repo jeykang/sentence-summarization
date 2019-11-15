@@ -6,7 +6,7 @@ import networkx as nx
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
 #process given test data and stopwords
-testdata = open("catonamat.txt")
+testdata = open("bolton_majoritygarbage_mix_2.txt")
 #stopwords = open("stopwords.txt")
 #stops = [l.strip() for l in stopwords.readlines()]
 stops = set(stopwords.words('english'))
@@ -137,7 +137,7 @@ def navigate(curnode = -1, result=[]): #simple limited DFS
     print("curword", wordgraph.nodes[curnode].get('name'))
     if curnode != -1 and curnode != 9999:
         result.append(curnode)
-    if len(list(filter(lambda x: wordgraph.nodes[x].get('attribute') == 'v', result))) >= 1 and curnode == 9999 and len(result) >= 3:
+    if len(list(filter(lambda x: wordgraph.nodes[x].get('attribute') == 'v', result))) >= 0 and curnode == 9999 and len(result) >= 3:
         return result
     for i in sorted(wordgraph.successors(curnode), key=lambda succ:wordgraph[curnode][succ].get('weight'), reverse=True):
         if i not in result:
