@@ -76,11 +76,13 @@ for i in range(len(lines)):
                     if score >= overlaps[1]:
                         overlaps = [node, score]
                 newid = overlaps[0]
+                wordgraph.nodes[newid]['freq'] += 1 
             elif len(existing) == 1:
                 newid = existing[0]
+                wordgraph.nodes[newid]['freq'] += 1 
             elif len(existing) == 0:
                 print("adding non stopword")
-                wordgraph.add_node(newid, name=cur, attribute=wordstat)
+                wordgraph.add_node(newid, name=cur, attribute=wordstat, freq=1)
                 print("contents of newly added", newid, ":", wordgraph.nodes[newid])
         else:
             #Check for existence, then overlap
@@ -100,6 +102,7 @@ for i in range(len(lines)):
                     if score >= overlaps[1]:
                         overlaps = [node, score]
                 newid = overlaps[0]
+                wordgraph.nodes[newid]['freq'] += 1 
             elif len(existing) == 1:
                 #newid = existing[0]
                 score = 0
@@ -113,13 +116,14 @@ for i in range(len(lines)):
                     score += 1
                 if score > 0:
                     newid = existing[0]
+                    wordgraph.nodes[newid]['freq'] += 1 
                 else:
                     print("adding stopword")
-                    wordgraph.add_node(newid, name=cur, attribute=wordstat)
+                    wordgraph.add_node(newid, name=cur, attribute=wordstat, freq=1)
                     print("contents of newly added", newid, ":", wordgraph.nodes[newid])
             elif len(existing) == 0:
                 print("adding stopword")
-                wordgraph.add_node(newid, name=cur, attribute=wordstat)
+                wordgraph.add_node(newid, name=cur, attribute=wordstat, freq=1)
                 print("contents of newly added", newid, ":", wordgraph.nodes[newid])
                 
         if not lastnode:
@@ -128,9 +132,17 @@ for i in range(len(lines)):
             addweight(lastnode, newid, nweight=1)
         lastnode = newid
     addweight(lastnode, 9999, nweight=1)
-#Invert weights
+    
+#And now recalculate the weight
 for edge in wordgraph.edges:
-    wordgraph.edges[edge]['weight'] = 1/wordgraph.edges[edge]['weight']
+    if 9999 not in edge and -1 not in edge:
+        wordgraph.edges[edge]['weight'] = (wordgraph.nodes[edge[0]]['freq']+wordgraph.nodes[edge[1]]['freq']) /wordgraph.edges[edge]['weight']
+    #Investigate what to do when edge contains start or end node- has no frequency
+    if 9999 in edge:
+        wordgraph.edges[edge]['weight'] = (wordgraph.nodes[edge[0]]['freq']+1) /wordgraph.edges[edge]['weight']
+    elif -1 in edge:
+        wordgraph.edges[edge]['weight'] = (1+wordgraph.nodes[edge[1]]['freq']) /wordgraph.edges[edge]['weight']
+
 plt.figure(3,figsize=(12,12)) 
 print(nx.get_node_attributes(wordgraph, 'attribute'))
 nx.draw(wordgraph, labels = nx.get_node_attributes(wordgraph, 'name'), k=0.3*1/math.sqrt(len(wordgraph.nodes())))
