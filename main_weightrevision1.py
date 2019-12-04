@@ -6,7 +6,7 @@ import networkx as nx
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
 #process given test data and stopwords
-testdata = open("hillary.txt")
+testdata = open("bolton_majoritygarbage_mix_2.txt")
 #stopwords = open("stopwords.txt")
 #stops = [l.strip() for l in stopwords.readlines()]
 stops = set(stopwords.words('english'))
@@ -132,16 +132,18 @@ for i in range(len(lines)):
             addweight(lastnode, newid, nweight=1)
         lastnode = newid
     addweight(lastnode, 9999, nweight=1)
-    
+
+print(wordgraph.edges)
 #And now recalculate the weight
 for edge in wordgraph.edges:
-    if 9999 not in edge and -1 not in edge:
-        wordgraph.edges[edge]['weight'] = (wordgraph.nodes[edge[0]]['freq']+wordgraph.nodes[edge[1]]['freq']) /wordgraph.edges[edge]['weight']
-    #Investigate what to do when edge contains start or end node- has no frequency
-    if 9999 in edge:
-        wordgraph.edges[edge]['weight'] = (wordgraph.nodes[edge[0]]['freq']+1) /wordgraph.edges[edge]['weight']
-    elif -1 in edge:
-        wordgraph.edges[edge]['weight'] = (1+wordgraph.nodes[edge[1]]['freq']) /wordgraph.edges[edge]['weight']
+    if None not in edge:
+        if 9999 not in edge and -1 not in edge:
+            wordgraph.edges[edge]['weight'] = (wordgraph.nodes[edge[0]]['freq']+wordgraph.nodes[edge[1]]['freq']) /wordgraph.edges[edge]['weight']
+        #Investigate what to do when edge contains start or end node- has no frequency
+        if 9999 in edge:
+            wordgraph.edges[edge]['weight'] = (wordgraph.nodes[edge[0]]['freq']+1) /wordgraph.edges[edge]['weight']
+        elif -1 in edge:
+            wordgraph.edges[edge]['weight'] = (1+wordgraph.nodes[edge[1]]['freq']) /wordgraph.edges[edge]['weight']
 
 plt.figure(3,figsize=(12,12)) 
 print(nx.get_node_attributes(wordgraph, 'attribute'))

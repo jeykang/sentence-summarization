@@ -6,7 +6,7 @@ import networkx as nx
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
 #process given test data and stopwords
-testdata = open("hillary.txt")
+testdata = open("bolton_majoritygarbage_mix_2.txt")
 #stopwords = open("stopwords.txt")
 #stops = [l.strip() for l in stopwords.readlines()]
 stops = set(stopwords.words('english'))
@@ -135,24 +135,30 @@ for i in range(len(lines)):
     
 #And now recalculate the weight
 def diff(s, i, j):
-    posi = 0
-    posj = 0
+    print("diff between", i, "and", j, "in", s)
+    posi = 1
+    posj = 1
     if posi in s and posj in s:
         posi = s.index(i)
         posj = s.index(j)
-        if posi < posj:
-            return posi - posj
-    return 0
+        return abs(posi - posj)
+    elif posi not in s:
+        return posj
+    elif posj not in s:
+        return posi
+    else:
+        return 1
 for edge in wordgraph.edges:
-    if 9999 not in edge and -1 not in edge:
-        #error: when diff is 0, you can't invert
-        #also, why would sum(diff) ever be 0? check later
-        wordgraph.edges[edge]['weight'] = (wordgraph.nodes[edge[0]]['freq']+wordgraph.nodes[edge[1]]['freq']) / sum([diff(s, wordgraph.nodes[edge[0]]['name'], wordgraph.nodes[edge[1]]['name']) ** -1 for s in lines])
-    #Investigate what to do when edge contains start or end node- has no frequency
-    if 9999 in edge:
-        wordgraph.edges[edge]['weight'] = (wordgraph.nodes[edge[0]]['freq']+1) #/wordgraph.edges[edge]['weight']
-    elif -1 in edge:
-        wordgraph.edges[edge]['weight'] = (1+wordgraph.nodes[edge[1]]['freq']) #/wordgraph.edges[edge]['weight']
+    if None not in edge:
+        if 9999 not in edge and -1 not in edge:
+            #error: when diff is 0, you can't invert
+            #also, why would sum(diff) ever be 0? check later
+            wordgraph.edges[edge]['weight'] = (wordgraph.nodes[edge[0]]['freq']+wordgraph.nodes[edge[1]]['freq']) / sum([diff(s, wordgraph.nodes[edge[0]]['name'], wordgraph.nodes[edge[1]]['name']) ** -1 for s in lines])
+        #Investigate what to do when edge contains start or end node- has no frequency
+        if 9999 in edge:
+            wordgraph.edges[edge]['weight'] = (wordgraph.nodes[edge[0]]['freq']+1) /sum([diff(s, wordgraph.nodes[edge[0]]['name'], 9999) ** -1 for s in lines])
+        elif -1 in edge:
+            wordgraph.edges[edge]['weight'] = (1+wordgraph.nodes[edge[1]]['freq']) /sum([diff(s, -1, wordgraph.nodes[edge[1]]['name']) ** -1 for s in lines])
 
 plt.figure(3,figsize=(12,12)) 
 print(nx.get_node_attributes(wordgraph, 'attribute'))
