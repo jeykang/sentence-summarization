@@ -6,7 +6,7 @@ import networkx as nx
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
 #process given test data and stopwords
-testdata = open("bolton_majoritygarbage_mix_2.txt")
+testdata = open("bolton_majoritygarbage_mix.txt")
 #stopwords = open("stopwords.txt")
 #stops = [l.strip() for l in stopwords.readlines()]
 stops = set(stopwords.words('english'))

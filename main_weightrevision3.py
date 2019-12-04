@@ -6,7 +6,7 @@ import networkx as nx
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
 #process given test data and stopwords
-testdata = open("bolton_majoritygarbage_mix_2.txt")
+testdata = open("bolton_majoritygarbage_mix.txt")
 #stopwords = open("stopwords.txt")
 #stops = [l.strip() for l in stopwords.readlines()]
 stops = set(stopwords.words('english'))
@@ -135,16 +135,16 @@ for i in range(len(lines)):
     
 #And now recalculate the weight
 def diff(s, i, j):
-    print("diff between", i, "and", j, "in", s)
     posi = 1
     posj = 1
-    if posi in s and posj in s:
+    if i in s and j in s:
         posi = s.index(i)
         posj = s.index(j)
         return abs(posi - posj)
-    elif posi not in s:
+    elif i not in s:
+        
         return posj
-    elif posj not in s:
+    elif j not in s:
         return posi
     else:
         return 1
