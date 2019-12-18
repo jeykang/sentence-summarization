@@ -137,18 +137,33 @@ def do_concat(lines, draw_plot=False, show_logs=False):
                 addweight(lastnode, newid, nweight=1)
             lastnode = newid
         addweight(lastnode, 9999, nweight=1)
-    
-    print_log(wordgraph.edges)
+        
     #And now recalculate the weight
+    def diff(s, i, j):
+        posi = 1
+        posj = 1
+        if i in s and j in s:
+            posi = s.index(i)
+            posj = s.index(j)
+            return abs(posi - posj)
+        elif i not in s:
+            
+            return posj
+        elif j not in s:
+            return posi
+        else:
+            return 1
     for edge in wordgraph.edges:
         if None not in edge:
             if 9999 not in edge and -1 not in edge:
-                wordgraph.edges[edge]['weight'] = (wordgraph.nodes[edge[0]]['freq']+wordgraph.nodes[edge[1]]['freq']) /wordgraph.edges[edge]['weight']
+                #error: when diff is 0, you can't invert
+                #also, why would sum(diff) ever be 0? check later
+                wordgraph.edges[edge]['weight'] = ((wordgraph.nodes[edge[0]]['freq']+wordgraph.nodes[edge[1]]['freq']) / sum([diff(s, wordgraph.nodes[edge[0]]['name'], wordgraph.nodes[edge[1]]['name']) ** -1 for s in lines])) / (wordgraph.nodes[edge[0]]['freq']*wordgraph.nodes[edge[1]]['freq'])
             #Investigate what to do when edge contains start or end node- has no frequency
             if 9999 in edge:
-                wordgraph.edges[edge]['weight'] = (wordgraph.nodes[edge[0]]['freq']+1) /wordgraph.edges[edge]['weight']
+                wordgraph.edges[edge]['weight'] = ((wordgraph.nodes[edge[0]]['freq']+1)/sum([diff(s, wordgraph.nodes[edge[0]]['name'], 9999) ** -1 for s in lines]))/(wordgraph.nodes[edge[0]]['freq']) #/wordgraph.edges[edge]['weight']
             elif -1 in edge:
-                wordgraph.edges[edge]['weight'] = (1+wordgraph.nodes[edge[1]]['freq']) /wordgraph.edges[edge]['weight']
+                wordgraph.edges[edge]['weight'] = ((1+wordgraph.nodes[edge[1]]['freq'])/sum([diff(s, -1, wordgraph.nodes[edge[1]]['name']) ** -1 for s in lines]))/(wordgraph.nodes[edge[1]]['freq']) #/wordgraph.edges[edge]['weight']
     
     if draw_plot:
         plt.figure(3,figsize=(12,12)) 

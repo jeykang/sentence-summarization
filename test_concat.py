@@ -1,11 +1,39 @@
 """
-For testing recursive-sentenceconcat
+For testing recursive-sentenceconcat (and revisions)
 """
 
-from recursive_sentenceconcat import do_concat
+from recursive_sentenceconcat_revision import do_concat
+from numpy.random import permutation
 
-test1 = "They had published an advertisement on the Internet on June 10, offering the cargo for sale, he added."
-test2 = "On June 10, the ship's owners had published an advertisement on the Internet, offering the explosives for sale."
+f = open("bolton_majoritygarbage_mix_2.txt")
+totlines = [line for line in f.readlines() if line != "\n"]
+f.close()
 
-do_concat([test1, test2])
+print(totlines)
+#permute totlines arbitrary number of times, and store the results
+total_gen = []
+already_done = []
+n = 5000
+for j in range(n):
+    perm = permutation(totlines).tolist()
+    retry = 0 #num of retries
+    while perm in already_done and retry < n: #end if there are no more possible permutations
+        retry += 1
+        perm = permutation(totlines).tolist()
+    if retry >= n:
+        break
+    already_done.append(perm)
+    i = 1
+    cur_cn = perm[0]
+    while i < len(perm):
+        cur_cn = do_concat([cur_cn, perm[i]])
+        i += 1
+    print(cur_cn)
+    total_gen.append(cur_cn)
+    
+#Then just run through the generated summaries with do_concat
+final = do_concat(total_gen, draw_plot=True, show_logs=True)
+#final = do_concat(totlines, draw_plot=True, show_logs=True)
+print(final)
+#print(total_gen)
 
