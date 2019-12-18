@@ -5,13 +5,27 @@ import string
 import networkx as nx
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
+import requests
+
+url = ('https://newsapi.org/v2/everything?'
+       'q=Trump&'
+       'sortBy=popularity&'
+       'apiKey=2472ff0d28ac4fdbb250def86ab797f3')
+
+response = requests.get(url)
+
+#print(response.json())
+
+headline_dict = response.json()
+headline_titles = [dic['title'] for dic in headline_dict['articles']]
 #process given test data and stopwords
-testdata = open("bolton_majoritygarbage_mix.txt")
+"""testdata = open("bolton_majoritygarbage_mix.txt")"""
 #stopwords = open("stopwords.txt")
 #stops = [l.strip() for l in stopwords.readlines()]
 stops = set(stopwords.words('english'))
-lines = [l.strip().strip(string.punctuation).lower().split() for l in testdata.readlines()]
-testdata.close()
+"""lines = [l.strip().strip(string.punctuation).lower().split() for l in testdata.readlines()]"""
+lines = headline_titles
+"""testdata.close()"""
 #stopwords.close()
 
 wordgraph = nx.DiGraph() #initialize directed graph for use, as well as start and end nodes
