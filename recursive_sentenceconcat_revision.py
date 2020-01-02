@@ -26,8 +26,8 @@ def do_concat(lines, draw_plot=False, show_logs=False):
         
     
     wordgraph = nx.DiGraph() #initialize directed graph for use, as well as start and end nodes
-    wordgraph.add_node(-1, attribute="start")
-    wordgraph.add_node(9999, attribute="end")
+    wordgraph.add_node(-1, attribute="start", freq=1)
+    wordgraph.add_node(9999, attribute="end", freq=1)
     
     flatten = lambda l: [item for sublist in l for item in sublist] #pre-define flatten() function for later use
     def addweight(u, v, nweight=0):
@@ -144,13 +144,25 @@ def do_concat(lines, draw_plot=False, show_logs=False):
         posj = 1
         if i in s and j in s:
             posi = s.index(i)
-            posj = s.index(j)
+            if i == j:
+                try:
+                    posj = (s[:posi]+s[posi+1:]).index(j) + 1
+                except ValueError:
+                    posj = 1
+            else:
+                posj = s.index(j)
+            if posi - posj == 0:
+                print("ERROR:", i, "and", j, "have same index in", s)
+                return 1
             return abs(posi - posj)
-        elif i not in s:
-            
-            return posj
-        elif j not in s:
-            return posi
+        elif i not in s and j in s:
+            if s.index(j) != 1:
+                return abs(1 - s.index(j))
+            return 1
+        elif j not in s and i in s:
+            if s.index(i) != 1:
+                return abs(s.index(i) - 1)
+            return 1
         else:
             return 1
     for edge in wordgraph.edges:
@@ -160,11 +172,13 @@ def do_concat(lines, draw_plot=False, show_logs=False):
                 #also, why would sum(diff) ever be 0? check later
                 wordgraph.edges[edge]['weight'] = ((wordgraph.nodes[edge[0]]['freq']+wordgraph.nodes[edge[1]]['freq']) / sum([diff(s, wordgraph.nodes[edge[0]]['name'], wordgraph.nodes[edge[1]]['name']) ** -1 for s in lines])) / (wordgraph.nodes[edge[0]]['freq']*wordgraph.nodes[edge[1]]['freq'])
             #Investigate what to do when edge contains start or end node- has no frequency
-            if 9999 in edge:
+            if 9999 in edge and -1 not in edge:
+                print("edge0", edge[0])
+                print("edge1", edge[1])
                 wordgraph.edges[edge]['weight'] = ((wordgraph.nodes[edge[0]]['freq']+1)/sum([diff(s, wordgraph.nodes[edge[0]]['name'], 9999) ** -1 for s in lines]))/(wordgraph.nodes[edge[0]]['freq']) #/wordgraph.edges[edge]['weight']
-            elif -1 in edge:
+            elif -1 in edge and 9999 not in edge:
                 wordgraph.edges[edge]['weight'] = ((1+wordgraph.nodes[edge[1]]['freq'])/sum([diff(s, -1, wordgraph.nodes[edge[1]]['name']) ** -1 for s in lines]))/(wordgraph.nodes[edge[1]]['freq']) #/wordgraph.edges[edge]['weight']
-    
+
     if draw_plot:
         plt.figure(3,figsize=(12,12)) 
         print_log(nx.get_node_attributes(wordgraph, 'attribute'))
@@ -176,7 +190,7 @@ def do_concat(lines, draw_plot=False, show_logs=False):
         if curnode != -1 and curnode != 9999:
             result.append(curnode)
             print_log(result)
-        if len(list(filter(lambda x: wordgraph.nodes[x].get('attribute') == 'v', result))) >= 0 and curnode == 9999 and len(result) >= 3:
+        if len(list(filter(lambda x: wordgraph.nodes[x].get('attribute') == 'v', result))) >= 0 and curnode == 9999 and len(result) >= 1:
             print_log("END NAV")
             return result
         for i in sorted(wordgraph.successors(curnode), key=lambda succ:wordgraph[curnode][succ].get('weight')):

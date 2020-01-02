@@ -139,16 +139,10 @@ def do_concat(lines, draw_plot=False, show_logs=False):
         addweight(lastnode, 9999, nweight=1)
     
     print_log(wordgraph.edges)
-    #And now recalculate the weight
+    #Invert weights
     for edge in wordgraph.edges:
-        if None not in edge:
-            if 9999 not in edge and -1 not in edge:
-                wordgraph.edges[edge]['weight'] = (wordgraph.nodes[edge[0]]['freq']+wordgraph.nodes[edge[1]]['freq']) /wordgraph.edges[edge]['weight']
-            #Investigate what to do when edge contains start or end node- has no frequency
-            if 9999 in edge:
-                wordgraph.edges[edge]['weight'] = (wordgraph.nodes[edge[0]]['freq']+1) /wordgraph.edges[edge]['weight']
-            elif -1 in edge:
-                wordgraph.edges[edge]['weight'] = (1+wordgraph.nodes[edge[1]]['freq']) /wordgraph.edges[edge]['weight']
+        wordgraph.edges[edge]['weight'] = 1/wordgraph.edges[edge]['weight']
+
     
     if draw_plot:
         plt.figure(3,figsize=(12,12)) 
